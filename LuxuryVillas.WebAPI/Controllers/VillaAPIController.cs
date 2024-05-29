@@ -1,4 +1,5 @@
-﻿using LuxuryVillas.WebAPI.Models.Dto;
+﻿using LuxuryVillas.WebAPI.Data;
+using LuxuryVillas.WebAPI.Models.Dto;
 using Microsoft.AspNetCore.Mvc;
 
 namespace LuxuryVillas.WebAPI.Controllers
@@ -8,12 +9,30 @@ namespace LuxuryVillas.WebAPI.Controllers
     public class VillaAPIController : ControllerBase
     {
         [HttpGet]
-        public IEnumerable<VillaDTO> GetVillas()
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        public ActionResult<IEnumerable<VillaDTO>> GetVillas()
         {
-            return new List<VillaDTO> {
-                new VillaDTO {Id=1, Name="Pool View"},
-                new VillaDTO {Id=2, Name="Beach View"}
-            };
+            return Ok(VillaStore.villaList);
+        }
+
+        [HttpGet("{id:int}")]
+        [ProducesResponseType(200)]
+        [ProducesResponseType(400)]
+        [ProducesResponseType(404)]
+        public ActionResult<VillaDTO> GetVilla(int id)
+        {
+            if (id == 0)
+            {
+                return BadRequest();
+            }
+
+            var villa = VillaStore.villaList.FirstOrDefault(u => u.Id == id);
+
+            if (villa == null) { 
+                return NotFound();
+            }
+
+            return Ok(villa);
         }
     }
 }
