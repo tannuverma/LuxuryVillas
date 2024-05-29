@@ -42,6 +42,12 @@ namespace LuxuryVillas.WebAPI.Controllers
 
         public ActionResult<VillaDTO> CreateVilla([FromBody]VillaDTO villaDTO) 
         {
+            if (VillaStore.villaList.FirstOrDefault(u => u.Name.ToLower() == villaDTO.Name.ToLower()) != null)
+            {
+                ModelState.AddModelError("CustomError", "Villa already exists!");
+                return BadRequest(ModelState);
+            }
+
             if (villaDTO == null) 
             {
                 return BadRequest(villaDTO);
@@ -56,6 +62,29 @@ namespace LuxuryVillas.WebAPI.Controllers
             VillaStore.villaList.Add(villaDTO);
 
             return CreatedAtRoute("GetVilla", new {id = villaDTO.Id}, villaDTO);
+        }
+
+        [HttpDelete("id", Name = "DeleteVilla")]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+
+        public IActionResult DeleteVilla(int id)
+        {
+            if (id == 0)
+            {
+                return BadRequest();
+            }
+
+            var villa = VillaStore.villaList.FirstOrDefault(u => u.Id == id);
+
+            if (villa == null)
+            {
+                return NotFound();
+            }
+
+            VillaStore.villaList.Remove(villa);
+            return NoContent();
         }
     }
 }
